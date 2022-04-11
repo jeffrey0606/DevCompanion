@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=DevAssets
+GenericName=DevAssets
+Comment= A GUI Software tool to help Devs manages their projects assets (logo, images, fonts, etc). https://www.devassets.hooreo.com for more infos
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=Flutter;Assets;Developer;Development;

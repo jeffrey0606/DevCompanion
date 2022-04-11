@@ -1,0 +1,15 @@
+flutter_app: 
+  command: DevCompanion
+  arch: x64
+
+control:
+  Package: DevCompanion
+  Version: 1.0.0
+  Architecture: amd64
+  Essential: no
+  Priority: optional
+  Depends:
+  Maintainer: Hooreo Team
+  Description: A GUI Software tool to help Devs manages their 
+    projects assets (logo, images, fonts, etc). 
+    https://www.devassets.hooreo.com for more infos
