@@ -2,6 +2,7 @@ import 'package:devcompanion/helpers/colors.dart';
 import 'package:devcompanion/helpers/enums.dart';
 import 'package:devcompanion/helpers/extensions.dart';
 import 'package:devcompanion/models/logo_models.dart';
+import 'package:devcompanion/views/components/display_image.dart';
 import 'package:devcompanion/views/components/toggle_transition.dart';
 import 'package:devcompanion/views/pages/overview/logo_card.dart';
 import 'package:flutter/gestures.dart';
@@ -130,6 +131,28 @@ class _SupportedPlatformCardState extends State<SupportedPlatformCard> {
                                     decoration: BoxDecoration(
                                       color: successColor, //errorColor
                                       borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 29,
+                                    width: 29,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: normalTextColor,
+                                        width: 0.5,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    padding: const EdgeInsets.all(2),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(6),
+                                      child: DisplayImage(
+                                        asset: widget.platformLogos.last.path,
+                                        imageType: ImageType.file,
+                                        //fit: BoxFit.cover,
+                                        useImageSize: false,
+                                        isLogo: true,
+                                      ),
                                     ),
                                   ),
                                 ],

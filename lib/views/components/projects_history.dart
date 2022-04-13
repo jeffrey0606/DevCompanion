@@ -8,7 +8,7 @@ import 'package:devcompanion/views/pages/intro/projects_tech.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ProjectHistory extends StatelessWidget {
+class ProjectHistory extends ConsumerWidget {
   final Size windowSize;
   const ProjectHistory({
     Key? key,
@@ -16,9 +16,9 @@ class ProjectHistory extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    var _projectProvider = context.read(projectProvider);
-    var _logoProvider = context.read(logoProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    var _projectProvider = ref.read(projectProvider);
+    var _logoProvider = ref.read(logoProvider);
     return SizedBox(
       height: double.infinity,
       width: 280,
@@ -59,7 +59,7 @@ class ProjectHistory extends StatelessWidget {
                 ),
                 child: Consumer(
                   builder: (context, watch, child) {
-                    final watcher = watch(projectProvider);
+                    final watcher = watch.watch(projectProvider);
                     return ListView(
                       children: watcher.projects.map(
                         (project) {
@@ -91,7 +91,7 @@ class ProjectHistory extends StatelessWidget {
               width: double.infinity,
               child: Consumer(
                 builder: (context, watch, child) {
-                  final watcher = watch(projectProvider);
+                  final watcher = watch.watch(projectProvider);
                   return Wrap(
                     spacing: 1,
                     runSpacing: 1,
@@ -111,11 +111,11 @@ class ProjectHistory extends StatelessWidget {
                             onTap: isSelected
                                 ? null
                                 : () async {
-                                    context.refresh(projectProvider);
-                                    context.refresh(logoProvider);
+                                    ref.refresh(projectProvider);
+                                    ref.refresh(logoProvider);
                                     _projectProvider =
-                                        context.read(projectProvider);
-                                    _logoProvider = context.read(logoProvider);
+                                        ref.read(projectProvider);
+                                    _logoProvider = ref.read(logoProvider);
                                     await _projectProvider.changeProjectTech(
                                       tech.type,
                                       init: false,
@@ -203,7 +203,7 @@ class ProjectHistory extends StatelessWidget {
   }
 }
 
-class HistoryCard extends StatelessWidget {
+class HistoryCard extends ConsumerWidget {
   final ProjectModel projectModel;
   final bool isSelected;
   final int index;
@@ -215,7 +215,7 @@ class HistoryCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
       width: double.infinity,
       height: 100,
@@ -226,11 +226,11 @@ class HistoryCard extends StatelessWidget {
         elevation: 1,
         child: InkWell(
           onTap: () async {
-            final _projectProvider = context.read(projectProvider);
+            final _projectProvider = ref.read(projectProvider);
 
             if (index == _projectProvider.currentProjectIndex) return;
             _projectProvider.changeProject(index);
-            context
+            ref
                 .read(logoProvider)
                 .initSupportedPlatforms(_projectProvider.currentProject);
           },

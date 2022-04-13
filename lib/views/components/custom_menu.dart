@@ -1,4 +1,3 @@
-import 'package:devcompanion/helpers/colors.dart';
 import 'package:devcompanion/helpers/enums.dart';
 import 'package:flutter/material.dart';
 
@@ -7,7 +6,10 @@ class CustomMenu extends StatelessWidget {
   final Function? onDismissed;
   final Function(dynamic item)? onItemSelected;
   final CustomMenuAlignment alignment;
-  final List<CustomMenuItem> items;
+  final bool fitContentToChildWidth;
+  final EdgeInsets padding;
+  final Function? onOpen;
+  final List<Widget> items;
 
   const CustomMenu({
     Key? key,
@@ -16,16 +18,24 @@ class CustomMenu extends StatelessWidget {
     this.onItemSelected,
     this.alignment = CustomMenuAlignment.right,
     this.items = const [],
+    this.fitContentToChildWidth = false,
+    this.padding = const EdgeInsets.symmetric(
+      vertical: 5,
+    ),
+    this.onOpen,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        onOpen?.call();
         showCustomMenu(
           context,
           alignment,
           items,
+          fitContentToChildWidth,
+          padding,
         );
       },
       child: child,
@@ -36,7 +46,9 @@ class CustomMenu extends StatelessWidget {
 void showCustomMenu(
   BuildContext context,
   CustomMenuAlignment alignment,
-  List<CustomMenuItem> items,
+  List<Widget> items,
+  bool fitContentToChildWidth,
+  EdgeInsets padding,
 ) async {
   final Offset position = getPosition(
     context,
@@ -49,7 +61,7 @@ void showCustomMenu(
     transitionDuration: const Duration(milliseconds: 100),
     barrierColor: Colors.transparent,
     pageBuilder: (
-      BuildContext context,
+      BuildContext context1,
       Animation animation,
       Animation secondaryAnimation,
     ) {
@@ -58,10 +70,40 @@ void showCustomMenu(
         child: CustomContextMenu(
           position: position,
           items: items,
+          scaleAlignment: getScaleAlignment(alignment),
+          constentWidth:
+              fitContentToChildWidth ? getChildSize(context).width : 100,
+          padding: padding,
         ),
       );
     },
   );
+}
+
+Size getChildSize(BuildContext context) {
+  final RenderBox renderBox = context.findRenderObject() as RenderBox;
+
+  return renderBox.size;
+}
+
+Alignment getScaleAlignment(CustomMenuAlignment customAlignment) {
+  late Alignment alignment;
+
+  switch (customAlignment) {
+    case CustomMenuAlignment.bottom:
+      alignment = Alignment.topCenter;
+      break;
+    case CustomMenuAlignment.left:
+      break;
+    case CustomMenuAlignment.right:
+      alignment = Alignment.topLeft;
+      break;
+    case CustomMenuAlignment.top:
+      break;
+    default:
+  }
+
+  return alignment;
 }
 
 Offset getPosition(BuildContext context, CustomMenuAlignment alignment) {
@@ -74,13 +116,17 @@ Offset getPosition(BuildContext context, CustomMenuAlignment alignment) {
 
   switch (alignment) {
     case CustomMenuAlignment.bottom:
+      offset += Offset(
+        0,
+        size.height + 3,
+      );
       break;
     case CustomMenuAlignment.left:
       break;
     case CustomMenuAlignment.right:
       offset += Offset(
         size.width,
-        0,
+        3,
       );
       break;
     case CustomMenuAlignment.top:
@@ -93,11 +139,17 @@ Offset getPosition(BuildContext context, CustomMenuAlignment alignment) {
 
 class CustomContextMenu extends StatefulWidget {
   final Offset position;
-  final List<CustomMenuItem> items;
+  final Alignment scaleAlignment;
+  final List<Widget> items;
+  final double constentWidth;
+  final EdgeInsets padding;
   const CustomContextMenu({
     Key? key,
     required this.position,
     required this.items,
+    required this.scaleAlignment,
+    required this.constentWidth,
+    required this.padding,
   }) : super(key: key);
 
   @override
@@ -149,21 +201,18 @@ class _CustomContextMenuState extends State<CustomContextMenu>
               offset: widget.position,
               child: Transform.scale(
                 scale: scale.value,
-                alignment: Alignment.topLeft,
+                alignment: widget.scaleAlignment,
                 child: SizedBox(
                   // height: 200,
-                  width: 100,
-                  child: Card(
+                  width: widget.constentWidth,
+                  child: Material(
                     elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 5,
-                        ),
+                        padding: widget.padding,
                         child: Wrap(
                           children: widget.items,
                         ),
@@ -180,26 +229,26 @@ class _CustomContextMenuState extends State<CustomContextMenu>
   }
 }
 
-class CustomMenuItem extends StatelessWidget {
-  final Function()? onTap;
-  final Widget child;
-  const CustomMenuItem({
-    Key? key,
-    this.onTap,
-    required this.child,
-  }) : super(key: key);
+// class CustomMenuItem extends StatelessWidget {
+//   final Function()? onTap;
+//   final Widget child;
+//   const CustomMenuItem({
+//     Key? key,
+//     this.onTap,
+//     required this.child,
+//   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      splashColor: secondaryColor,
-      onTap: onTap == null
-          ? null
-          : () {
-              onTap?.call();
-              Navigator.of(context).pop();
-            },
-      child: child,
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return InkWell(
+//       splashColor: secondaryColor,
+//       onTap: onTap == null
+//           ? null
+//           : () {
+//               onTap?.call();
+//               Navigator.of(context).pop();
+//             },
+//       child: child,
+//     );
+//   }
+// }

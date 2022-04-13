@@ -5,8 +5,10 @@ import 'package:devcompanion/helpers/enums.dart';
 import 'package:devcompanion/helpers/functions.dart';
 import 'package:devcompanion/models/logo_models.dart';
 import 'package:devcompanion/models/projects_tech_model.dart';
+import 'package:devcompanion/providers/project_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image/image.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart' as path;
 
@@ -28,11 +30,13 @@ import 'package:path/path.dart' as path;
 
 final logoProvider = ChangeNotifierProvider<LogoProvider>(
   (ref) {
-    return LogoProvider();
+    return LogoProvider(ref);
   },
 );
 
 class LogoProvider extends ChangeNotifier {
+  final Ref ref;
+  LogoProvider(this.ref);
   Map<ProjectPlatform, List<LogoModel>> supportedProjectPlatforms = {};
 
   List<ProjectPlatform> get listOfProjectPlatforms {
@@ -48,6 +52,97 @@ class LogoProvider extends ChangeNotifier {
   set isLoading(bool val) {
     _isLoading = val;
     notifyListeners();
+  }
+
+  void changeLogo(String logoPath) async {
+    String newLogoPath = path.join(
+      await saveStuffsDir('logos'),
+      path.basename(logoPath),
+    );
+
+    final file = await File(logoPath).copy(newLogoPath);
+    projectModel.logo = file.path;
+    projectModel.logoType = ImageType.file;
+    projectModel.size = file.statSync().size;
+    projectModel.dimension =
+        toDimension(await getImageSize(newLogoPath, ImageType.file));
+    projectModel.save();
+
+    ref.read(projectProvider).updateProjectModel();
+  }
+
+  void replaceLogoVarients(List<ProjectPlatform> selectedPlatforms) async {
+    isLoading = true;
+    if (projectModel.type == ProjectsTechType.flutter) {
+      for (var platform in selectedPlatforms) {
+        LogoVarientModel varient = flutterLogoVarients
+            .firstWhere((element) => element.projectPlatform == platform)
+            .copyWith();
+        List<LogoModel> data = [];
+
+        // supportedProjectPlatforms.remove(varient.projectPlatform);
+
+        if (varient.projectPlatform == ProjectPlatform.linux) {
+          data = await getLinuxLogo(varient);
+        } else if (varient.projectPlatform == ProjectPlatform.android) {
+          varient.path = path.join(
+            "android",
+            varient.path,
+          );
+          data = await getAndroidLogo(varient);
+        } else if (varient.projectPlatform == ProjectPlatform.ios) {
+          data = await getMacosIosLogo(varient);
+        } else if (varient.projectPlatform == ProjectPlatform.macos) {
+          data = await getMacosIosLogo(varient);
+        } else if (varient.projectPlatform == ProjectPlatform.windows) {
+          data = await getWindowsLogo(varient);
+        }
+
+        // Read an image from file (webp in this case).
+        // decodeImage will identify the format of the image and use the appropriate
+        // decoder.
+        final image = decodeImage(File(projectModel.logo!).readAsBytesSync())!;
+
+        for (var logoVarient in data) {
+          final Size varientDimension = logoVarient.dimension;
+          // Resize the image to a 120x? thumbnail (maintaining the aspect ratio).
+          final thumbnail = copyResize(
+            image,
+            width: varientDimension.width.toInt(),
+            height: varientDimension.height.toInt(),
+          );
+          final String mimeType =
+              mime(logoVarient.path) ?? path.extension(logoVarient.path);
+          late List<int>? encodedImage;
+          if (mimeType.contains('png')) {
+            encodedImage = encodePng(thumbnail);
+          } else if (mimeType.contains('webp')) {
+          } else if (mimeType.contains('ico')) {
+            encodedImage = encodeIco(thumbnail);
+          }
+          if (encodedImage != null) {
+            // Save the thumbnail as a Varient extension.
+            File(logoVarient.path).writeAsBytesSync(
+              encodedImage,
+              flush: true,
+            );
+          }
+        }
+
+        if (data.isNotEmpty) {
+          supportedProjectPlatforms.update(
+            varient.projectPlatform,
+            (value) => data,
+            ifAbsent: () => data,
+          );
+
+          notifyListeners();
+          ref.read(projectProvider).updateProjectModel();
+        }
+      }
+    } else {
+      throw ('replacing logo varients for [${projectModel.type} Type] is not yet supported');
+    }
   }
 
   void initSupportedPlatforms(ProjectModel projectModel) async {
@@ -94,6 +189,8 @@ class LogoProvider extends ChangeNotifier {
           ifAbsent: () => data,
         );
       }
+    } else {
+      throw ('logo varients for [${projectModel.type} Type] is not yet supported');
     }
 
     isLoading = false;

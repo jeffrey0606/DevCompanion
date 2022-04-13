@@ -11,12 +11,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../helpers/extensions.dart';
 
-class ProjectsContent extends StatelessWidget {
+class ProjectsContent extends ConsumerWidget {
   const ProjectsContent({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final _projectProvider = context.read(projectProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final _projectProvider = ref.read(projectProvider);
     return SizedBox(
       height: double.infinity,
       width: 280,
@@ -35,7 +35,7 @@ class ProjectsContent extends StatelessWidget {
               width: double.infinity,
               child: Consumer(
                 builder: (context, watch, child) {
-                  final watcher1 = watch(navBarPagesProvider);
+                  final watcher1 = ref.watch(navBarPagesProvider);
 
                   final name = _projectProvider.noProjectFound
                       ? "Empty"
@@ -56,7 +56,7 @@ class ProjectsContent extends StatelessWidget {
           Expanded(
             child: Consumer(
               builder: (context, watch, child) {
-                final watcher1 = watch(navBarPagesProvider);
+                final watcher1 = watch.watch(navBarPagesProvider);
                 switch (watcher1.currentPage) {
                   case NavBarPages.overview:
                     return Overview();

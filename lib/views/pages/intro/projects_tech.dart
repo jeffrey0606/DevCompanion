@@ -47,7 +47,7 @@ class ProjectsTech extends StatelessWidget {
   }
 }
 
-class ProjectsTechOptions extends StatefulWidget {
+class ProjectsTechOptions extends ConsumerStatefulWidget {
   final bool refresh;
   const ProjectsTechOptions({
     Key? key,
@@ -55,25 +55,25 @@ class ProjectsTechOptions extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ProjectsTechOptionsState createState() => _ProjectsTechOptionsState();
+  ConsumerState createState() => _ProjectsTechOptionsState();
 }
 
-class _ProjectsTechOptionsState extends State<ProjectsTechOptions> {
+class _ProjectsTechOptionsState extends ConsumerState<ProjectsTechOptions> {
   int? selectedIndex;
 
   void moveToProject() async {
     if (widget.refresh) {
-      context.refresh(projectProvider);
-      context.refresh(logoProvider);
+      ref.refresh(projectProvider);
+      ref.refresh(logoProvider);
     }
-    final _projectProvider = context.read(projectProvider);
+    final _projectProvider = ref.read(projectProvider);
     await _projectProvider.changeProjectTech(
       techs[selectedIndex!].type,
       init: true,
     );
 
     if (!_projectProvider.noProjectFound) {
-      context
+      ref
           .read(logoProvider)
           .initSupportedPlatforms(_projectProvider.currentProject);
     }

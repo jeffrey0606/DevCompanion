@@ -36,7 +36,7 @@ class Home extends StatelessWidget {
                         ),
                         Consumer(
                           builder: (context, watch, child) {
-                            final watcher = watch(navBarPagesProvider);
+                            final watcher = watch.watch(navBarPagesProvider);
 
                             switch (watcher.currentPage) {
                               case NavBarPages.colorPicker:

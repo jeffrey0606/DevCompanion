@@ -82,7 +82,7 @@ class NavBar extends StatelessWidget {
   }
 }
 
-class NavBarPageIconCard extends StatelessWidget {
+class NavBarPageIconCard extends ConsumerWidget {
   final NavBarPagesIconModel pageIconModel;
   const NavBarPageIconCard({
     Key? key,
@@ -90,14 +90,14 @@ class NavBarPageIconCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () {
-        context.read(navBarPagesProvider).changePage(pageIconModel.page);
+        ref.read(navBarPagesProvider).changePage(pageIconModel.page);
       },
       child: Consumer(
         builder: (context, watch, child) {
-          final watcher = watch(navBarPagesProvider);
+          final watcher = watch.watch(navBarPagesProvider);
           final bool isSelected = watcher.currentPage == pageIconModel.page;
           return AnimatedContainer(
             duration: const Duration(
@@ -172,11 +172,11 @@ class Profile extends StatelessWidget {
   }
 }
 
-class ProjectControl extends StatelessWidget {
+class ProjectControl extends ConsumerWidget {
   const ProjectControl({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
       height: 45,
       width: 45,
@@ -197,7 +197,7 @@ class ProjectControl extends StatelessWidget {
         //   MenuItem(title: 'Fourth item'),
         // ],
         items: [
-          CustomMenuItem(
+          InkWell(
             onTap: () async {
               final String? selectedDirectory =
                   await FilePicker.platform.getDirectoryPath(
@@ -207,7 +207,7 @@ class ProjectControl extends StatelessWidget {
               if (selectedDirectory != null) {
                 log("add new project! $selectedDirectory");
 
-                final _projectProvider = context.read(projectProvider);
+                final _projectProvider = ref.read(projectProvider);
 
                 if (_projectProvider.projectAlreadyExists(selectedDirectory)) {
                   f.showSnackbar(
@@ -254,7 +254,7 @@ class ProjectControl extends StatelessWidget {
                   await _projectProvider.addNewProject(
                     selectedDirectory,
                   );
-                  context
+                  ref
                       .read(logoProvider)
                       .initSupportedPlatforms(_projectProvider.currentProject);
                 }

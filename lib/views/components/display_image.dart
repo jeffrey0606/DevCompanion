@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:devcompanion/helpers/enums.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart' as pathz;
+import 'package:watcher/watcher.dart';
 
 class DisplayImage extends StatelessWidget {
   final String asset;
@@ -71,8 +73,30 @@ class ShowImage extends StatefulWidget {
 class _ShowImageState extends State<ShowImage> {
   late Future<Size> _resizeImage;
 
+  StreamSubscription<WatchEvent>? sub;
+
   @override
   void initState() {
+    loadImage();
+
+    if (widget.imageType == ImageType.file) {
+      final watcher = FileWatcher(widget.asset);
+
+      sub = watcher.events.listen((event) {
+        if (ChangeType.MODIFY == event.type) {
+          imageCache?.clearLiveImages();
+          imageCache?.clear();
+
+          loadImage();
+
+          setState(() {});
+        }
+      });
+    }
+    super.initState();
+  }
+
+  void loadImage() {
     _resizeImage = resizeImage(
       widget.asset,
       widget.size,
@@ -80,7 +104,12 @@ class _ShowImageState extends State<ShowImage> {
       useImageSize: widget.useImageSize ?? false,
       isLogo: widget.isLogo ?? false,
     );
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    sub?.cancel();
+    super.dispose();
   }
 
   @override
@@ -174,3 +203,29 @@ class _ShowImageState extends State<ShowImage> {
     );
   }
 }
+
+// class WatchFileSystemImageChanges {
+//   static Stream<ImageChangesEvent> get events => _eventsController.stream;
+
+//   static final _eventsController =
+//       StreamController<ImageChangesEvent>.broadcast();
+
+//   static add(ImageChangesEvent changesEvent) {
+//     _eventsController.add(changesEvent);
+//   }
+// }
+
+// class ImageChangesEvent {
+//   final String path;
+
+//   final ImageChangesType type;
+
+//   ImageChangesEvent({
+//     required this.path,
+//     required this.type,
+//   });
+// }
+
+// enum ImageChangesType {
+//   modify,
+// }

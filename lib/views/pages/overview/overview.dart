@@ -21,7 +21,7 @@ class Overview extends StatelessWidget {
         SliverToBoxAdapter(
           child: Consumer(
             builder: (context, watch, child) {
-              final watcher = watch(projectProvider);
+              final watcher = watch.watch(projectProvider);
 
               return OverviewCard(
                 projectModel:

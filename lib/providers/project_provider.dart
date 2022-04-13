@@ -51,6 +51,10 @@ class ProjectProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  updateProjectModel() {
+    notifyListeners();
+  }
+
   Future<void> changeProjectTech(ProjectsTechType? type,
       {bool init = false}) async {
     type ??= getRecentProjectsTech();

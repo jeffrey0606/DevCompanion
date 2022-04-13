@@ -22,7 +22,7 @@ import 'package:mime_type/mime_type.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:path/path.dart' as path;
 
-Future<bool> initAppConfigs(BuildContext context) async {
+Future<bool> initAppConfigs(BuildContext context, WidgetRef ref) async {
   try {
     Hive
       ..init(
@@ -52,7 +52,7 @@ Future<bool> initAppConfigs(BuildContext context) async {
 
     final initParamsBox = await Hive.openBox<InitParams>("initParams");
     var initParams = initParamsBox.get("data") ?? InitParams(isFirstTime: true);
-    final _projectProvider = context.read(projectProvider);
+    final _projectProvider = ref.read(projectProvider);
 
     if (initParams.isFirstTime) {
       await initParamsBox.put("data", initParams);
@@ -72,7 +72,7 @@ Future<bool> initAppConfigs(BuildContext context) async {
       );
 
       if (!_projectProvider.noProjectFound) {
-        context
+        ref
             .read(logoProvider)
             .initSupportedPlatforms(_projectProvider.currentProject);
       }
@@ -130,6 +130,20 @@ Future<String> appDataFolderPath() async {
   return directory.path;
 }
 
+Future<String> saveStuffsDir(String stuffName) async {
+  final directory = Directory(
+    path.join(
+      await appDataFolderPath(),
+      stuffName,
+    ),
+  );
+  if (!(await directory.exists())) {
+    await directory.create();
+  }
+
+  return directory.path;
+}
+
 Size fromDimension(String dimension) {
   final size = dimension
       .split("x")
@@ -141,7 +155,7 @@ Size fromDimension(String dimension) {
 }
 
 String toDimension(Size size) {
-  return "${size.width}x${size.height}";
+  return "${size.width.toInt()}x${size.height.toInt()}";
 }
 
 Future<void> getDeviceInfo() async {

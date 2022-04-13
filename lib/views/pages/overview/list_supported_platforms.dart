@@ -28,7 +28,7 @@ class ListSupportedPlatforms extends StatelessWidget {
             ),
             child: Consumer(
               builder: (context, watch, child) {
-                final watcher = watch(logoProvider);
+                final watcher = watch.watch(logoProvider);
                 return Wrap(
                   spacing: 8,
                   runSpacing: 8,

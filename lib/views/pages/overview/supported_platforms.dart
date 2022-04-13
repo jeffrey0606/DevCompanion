@@ -12,7 +12,7 @@ class SupportedPlatform extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, watch, child) {
-        final watcher = watch(logoProvider);
+        final watcher = watch.watch(logoProvider);
 
         return SliverList(
           delegate: SliverChildBuilderDelegate(

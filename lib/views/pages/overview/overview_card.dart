@@ -1,12 +1,17 @@
 import 'dart:developer';
 
 import 'package:devcompanion/helpers/colors.dart';
+import 'package:devcompanion/helpers/enums.dart';
 import 'package:devcompanion/helpers/functions.dart';
 import 'package:devcompanion/models/projects_tech_model.dart';
+import 'package:devcompanion/providers/logo/logo_provider.dart';
+import 'package:devcompanion/providers/logo/replace_reset_varient_provider.dart';
+import 'package:devcompanion/views/components/custom_menu.dart';
 import 'package:devcompanion/views/components/display_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart' show showSnackbar, Snackbar;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as path;
 
 class OverviewCard extends StatefulWidget {
@@ -91,8 +96,9 @@ class _OverviewCardState extends State<OverviewCard> {
                   ? Container()
                   : Row(
                       children: [
-                        Padding(
+                        Container(
                           padding: const EdgeInsets.all(8.0),
+                          height: double.infinity,
                           child: Card(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
@@ -118,6 +124,7 @@ class _OverviewCardState extends State<OverviewCard> {
                                       asset: widget.projectModel!.logo!,
                                       imageType: widget.projectModel!.logoType!,
                                       fit: BoxFit.cover,
+                                      useImageSize: false,
                                     ),
                             ),
                           ),
@@ -184,7 +191,15 @@ class _OverviewCardState extends State<OverviewCard> {
                                     ],
                                   ),
                                 ),
-                                const ChangeLogoButton(),
+                                Row(
+                                  children: const [
+                                    ChangeLogoButton(),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    ModifyLogoVarient(),
+                                  ],
+                                )
                               ],
                             ),
                           ),
@@ -199,19 +214,212 @@ class _OverviewCardState extends State<OverviewCard> {
   }
 }
 
-class ChangeLogoButton extends StatelessWidget {
+class ModifyLogoVarient extends ConsumerWidget {
+  const ModifyLogoVarient({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final watcher = ref.watch(logoProvider);
+    return CustomMenu(
+      onDismissed: () {},
+      onItemSelected: (item) {},
+      onOpen: () {
+        ref.refresh(replaceResetVarientProvider);
+      },
+      // menuItems: [
+      //   MenuItem(title: 'First item'),
+      //   MenuItem(title: 'Second item'),
+      //   MenuItem(
+      //     title: 'Third item with submenu',
+      //     items: [
+      //       MenuItem(title: 'First subitem'),
+      //       MenuItem(title: 'Second subitem'),
+      //       MenuItem(title: 'Third subitem'),
+      //     ],
+      //   ),
+      //   MenuItem(title: 'Fourth item'),
+      // ],
+      items: [
+        ...watcher.listOfProjectPlatforms.map(
+          (platform) {
+            return Consumer(
+              builder: (context, watch, child) {
+                final watcher1 = watch.watch(replaceResetVarientProvider);
+                final isSelected =
+                    watcher1.selectedPlatforms.contains(platform);
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 5),
+                  child: SizedBox(
+                    // width: 100,
+                    height: 30,
+                    child: InkWell(
+                      onTap: () async {
+                        final _replaceResetVarientProvider =
+                            ref.read(replaceResetVarientProvider);
+
+                        if (isSelected) {
+                          _replaceResetVarientProvider.remove(platform);
+                        } else {
+                          _replaceResetVarientProvider.select(platform);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(10),
+                      splashColor: secondaryColor,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: isSelected
+                              ? Border.all(
+                                  color: primaryColor,
+                                  width: 2,
+                                )
+                              : null,
+                        ),
+                        child: Center(
+                          child: Text(
+                            platform.name,
+                            style: const TextStyle(
+                              color: headerTextColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        // const SizedBox(
+        //   height: 5,
+        //   width: double.infinity,
+        // ),
+        Consumer(builder: (context, watch, child) {
+          final watcher1 = watch.watch(replaceResetVarientProvider);
+          final bool isEmpty = watcher1.selectedPlatforms.isEmpty;
+          return SizedBox(
+            width: double.infinity,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: isEmpty
+                        ? null
+                        : () {
+                            Navigator.of(context).pop();
+                          },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        Colors.grey,
+                      ),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      "reset",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Expanded(
+                  child: TextButton(
+                    onPressed: isEmpty
+                        ? null
+                        : () {
+                            ref.read(replaceResetVarientProvider).replace();
+                            Navigator.of(context).pop();
+                          },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        successColor,
+                      ),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    child: const FittedBox(
+                      child: Text(
+                        "replace",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+      alignment: CustomMenuAlignment.bottom,
+      fitContentToChildWidth: true,
+      padding: const EdgeInsets.symmetric(
+        vertical: 5,
+        horizontal: 5,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: infoColor,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.symmetric(
+          vertical: 2,
+          horizontal: 6,
+        ),
+        child: Row(
+          children: const [
+            Icon(
+              Icons.update_rounded,
+              color: Colors.white,
+              // size: 18,
+            ),
+            Text(
+              "update varients",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w300,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ChangeLogoButton extends ConsumerWidget {
   const ChangeLogoButton({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return TextButton.icon(
       onPressed: () async {
         final FilePickerResult? selectedFile =
             await FilePicker.platform.pickFiles(
           dialogTitle: "Select new logo",
           allowMultiple: false,
+          allowedExtensions: ['png', 'webp'],
         );
 
         if (selectedFile != null) {
@@ -237,6 +445,7 @@ class ChangeLogoButton extends StatelessWidget {
               ),
             ),
           );
+          ref.read(logoProvider).changeLogo(selectedFile.paths.first!);
         } else {
           showSnackbar(
             context,

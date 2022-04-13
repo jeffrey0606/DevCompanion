@@ -6,20 +6,21 @@ import 'package:devcompanion/views/pages/home/home.dart';
 import 'package:devcompanion/views/pages/intro/projects_tech.dart';
 import 'package:devcompanion/views/pages/splash/spash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class App extends StatefulWidget {
+class App extends ConsumerStatefulWidget {
   const App({Key? key}) : super(key: key);
 
   @override
-  State<App> createState() => _AppState();
+  ConsumerState<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends ConsumerState<App> {
   late Future<bool>? _initAppConfigs;
 
   @override
   void initState() {
-    _initAppConfigs = initAppConfigs(context);
+    _initAppConfigs = initAppConfigs(context, ref);
     super.initState();
   }
 
