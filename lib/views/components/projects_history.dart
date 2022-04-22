@@ -1,6 +1,7 @@
 import 'package:devcompanion/helpers/colors.dart';
 import 'package:devcompanion/helpers/functions.dart';
 import 'package:devcompanion/models/projects_tech_model.dart';
+import 'package:devcompanion/providers/assets_provider.dart';
 import 'package:devcompanion/providers/logo/logo_provider.dart';
 import 'package:devcompanion/providers/project_provider.dart';
 import 'package:devcompanion/views/components/display_image.dart';
@@ -124,6 +125,10 @@ class ProjectHistory extends ConsumerWidget {
                                       _logoProvider.initSupportedPlatforms(
                                         _projectProvider.currentProject,
                                       );
+                                      ref
+                                          .read(assetsProvider)
+                                          .initProjectAssets(
+                                              _projectProvider.currentProject);
                                     }
                                   },
                           ),
@@ -233,6 +238,9 @@ class HistoryCard extends ConsumerWidget {
             ref
                 .read(logoProvider)
                 .initSupportedPlatforms(_projectProvider.currentProject);
+            ref
+                .read(assetsProvider)
+                .initProjectAssets(_projectProvider.currentProject);
           },
           borderRadius: BorderRadius.circular(10),
           splashColor: secondaryColor,
@@ -284,10 +292,13 @@ class HistoryCard extends ConsumerWidget {
                                 ),
                               ),
                             )
-                          : DisplayImage(
-                              asset: projectModel.logo!,
-                              imageType: projectModel.logoType!,
-                              fit: BoxFit.cover,
+                          : Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: DisplayImage(
+                                asset: projectModel.logo!,
+                                imageType: projectModel.logoType!,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                     ),
                   ),

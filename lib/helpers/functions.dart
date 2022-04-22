@@ -9,6 +9,7 @@ import 'package:devcompanion/helpers/exceptions.dart';
 import 'package:devcompanion/models/device_info.dart';
 import 'package:devcompanion/models/init_params.dart';
 import 'package:devcompanion/models/projects_tech_model.dart';
+import 'package:devcompanion/providers/assets_provider.dart';
 import 'package:devcompanion/providers/logo/logo_provider.dart';
 import 'package:devcompanion/providers/project_provider.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -75,6 +76,9 @@ Future<bool> initAppConfigs(BuildContext context, WidgetRef ref) async {
         ref
             .read(logoProvider)
             .initSupportedPlatforms(_projectProvider.currentProject);
+        ref
+            .read(assetsProvider)
+            .initProjectAssets(_projectProvider.currentProject);
       }
     }
 

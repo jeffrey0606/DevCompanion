@@ -59,6 +59,9 @@ class ProjectModel extends HiveObject {
   @HiveField(8)
   List<Color>? logoColors;
 
+  @HiveField(9)
+  String? assetsPath;
+
   ProjectModel({
     required this.id,
     required this.name,
@@ -69,5 +72,6 @@ class ProjectModel extends HiveObject {
     this.logoType,
     this.size,
     this.logoColors,
+    this.assetsPath,
   });
 }

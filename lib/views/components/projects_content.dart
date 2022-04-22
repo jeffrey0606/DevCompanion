@@ -35,13 +35,16 @@ class ProjectsContent extends ConsumerWidget {
               width: double.infinity,
               child: Consumer(
                 builder: (context, watch, child) {
-                  final watcher1 = ref.watch(navBarPagesProvider);
+                  final watcher1 = watch.watch(navBarPagesProvider);
+                  final watcher2 = watch.watch(projectProvider);
 
-                  final name = _projectProvider.noProjectFound
+                  final String name = watcher2.noProjectFound
                       ? "Empty"
-                      : _projectProvider.currentProject.name;
+                      : watcher2.currentProject.name;
+                  final String pageName =
+                      watcher1.currentPage.name.firstCharToUpperCase();
                   return Text(
-                    "Project ( $name )'s - ${watcher1.currentPage.name.firstCharToUpperCase()}",
+                    "Project ( $name )'s - $pageName",
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: headerTextColor,
@@ -63,7 +66,7 @@ class ProjectsContent extends ConsumerWidget {
                   case NavBarPages.preview:
                     return const Preview();
                   case NavBarPages.assets:
-                    return const Assets();
+                    return Assets();
                   case NavBarPages.colorPicker:
                     return const ColorPicker();
                   default:

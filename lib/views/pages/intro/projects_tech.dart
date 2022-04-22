@@ -2,6 +2,7 @@ import 'package:devcompanion/helpers/colors.dart';
 import 'package:devcompanion/helpers/contants.dart';
 import 'package:devcompanion/helpers/extensions.dart';
 import 'package:devcompanion/models/projects_tech_model.dart';
+import 'package:devcompanion/providers/assets_provider.dart';
 import 'package:devcompanion/providers/logo/logo_provider.dart';
 import 'package:devcompanion/providers/project_provider.dart';
 import 'package:devcompanion/views/components/display_image.dart';
@@ -76,6 +77,9 @@ class _ProjectsTechOptionsState extends ConsumerState<ProjectsTechOptions> {
       ref
           .read(logoProvider)
           .initSupportedPlatforms(_projectProvider.currentProject);
+      ref
+          .read(assetsProvider)
+          .initProjectAssets(_projectProvider.currentProject);
     }
     Navigator.pushReplacement(
       context,

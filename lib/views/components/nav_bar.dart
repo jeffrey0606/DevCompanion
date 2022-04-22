@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:devcompanion/helpers/colors.dart';
 import 'package:devcompanion/helpers/contants.dart';
 import 'package:devcompanion/models/nav_bar_pages_icon_model.dart';
+import 'package:devcompanion/providers/assets_provider.dart';
 import 'package:devcompanion/providers/logo/logo_provider.dart';
 import 'package:devcompanion/providers/nav_bar_pages_provider.dart';
 import 'package:devcompanion/providers/project_provider.dart';
@@ -257,6 +258,9 @@ class ProjectControl extends ConsumerWidget {
                   ref
                       .read(logoProvider)
                       .initSupportedPlatforms(_projectProvider.currentProject);
+                  ref
+                      .read(assetsProvider)
+                      .initProjectAssets(_projectProvider.currentProject);
                 }
               } else {
                 f.showSnackbar(

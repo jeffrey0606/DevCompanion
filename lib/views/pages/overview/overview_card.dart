@@ -120,11 +120,15 @@ class _OverviewCardState extends State<OverviewCard> {
                                         ),
                                       ),
                                     )
-                                  : DisplayImage(
-                                      asset: widget.projectModel!.logo!,
-                                      imageType: widget.projectModel!.logoType!,
-                                      fit: BoxFit.cover,
-                                      useImageSize: false,
+                                  : Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: DisplayImage(
+                                        asset: widget.projectModel!.logo!,
+                                        imageType:
+                                            widget.projectModel!.logoType!,
+                                        fit: BoxFit.cover,
+                                        useImageSize: false,
+                                      ),
                                     ),
                             ),
                           ),

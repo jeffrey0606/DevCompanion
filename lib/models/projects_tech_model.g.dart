@@ -72,13 +72,14 @@ class ProjectModelAdapter extends TypeAdapter<ProjectModel> {
       logoType: fields[5] as ImageType?,
       size: fields[7] as int?,
       logoColors: (fields[8] as List?)?.cast<Color>(),
+      assetsPath: fields[9] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProjectModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -96,7 +97,9 @@ class ProjectModelAdapter extends TypeAdapter<ProjectModel> {
       ..writeByte(7)
       ..write(obj.size)
       ..writeByte(8)
-      ..write(obj.logoColors);
+      ..write(obj.logoColors)
+      ..writeByte(9)
+      ..write(obj.assetsPath);
   }
 
   @override
